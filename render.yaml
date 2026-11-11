@@ -1,0 +1,26 @@
+# Blueprint de Render: crea la base de datos PostgreSQL y el servicio web (Express + frontend estático).
+databases:
+  - name: planificador-db
+    databaseName: planificador
+    user: planificador
+    region: virginia
+    plan: free   # el Postgres gratuito de Render expira a los 30 días; sube de plan para producción
+
+services:
+  - type: web
+    name: mi-planificador-docente
+    runtime: node
+    region: virginia
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: npm run migrate && npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATABASE_URL
+        fromDatabase:
+          name: planificador-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
